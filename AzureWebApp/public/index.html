@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ember & Rind — Coffee Roasters</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,500&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --espresso:#241410;
+    --espresso-2:#2f1c15;
+    --cream:#f3ead9;
+    --cream-2:#e9dcc3;
+    --rust:#bd5b31;
+    --rust-dark:#8f4023;
+    --gold:#c99a4b;
+    --moss:#5c6644;
+    --line: rgba(243,234,217,0.18);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--espresso);
+    color:var(--cream);
+    font-family:'Archivo',sans-serif;
+    overflow-x:hidden;
+    position:relative;
+  }
+  /* grain overlay */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    pointer-events:none;
+    z-index:999;
+    opacity:0.05;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  h1,h2,h3,h4{font-family:'Fraunces',serif; font-weight:500; line-height:1.05;}
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1240px; margin:0 auto; padding:0 40px;}
+  ::selection{background:var(--rust); color:var(--cream);}
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:26px 44px;
+    mix-blend-mode:difference;
+  }
+  .logo{
+    font-family:'Fraunces',serif; font-size:1.3rem; font-weight:600; letter-spacing:0.5px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .logo svg{width:26px;height:26px;}
+  .nav-links{display:flex; gap:34px; font-size:0.82rem; letter-spacing:1.5px; text-transform:uppercase; font-weight:600;}
+  .nav-links a{opacity:0.85; transition:opacity .25s;}
+  .nav-links a:hover{opacity:1;}
+  @media(max-width:760px){ .nav-links{display:none;} }
+
+  /* ---------- HERO ---------- */
+  header.hero{
+    position:relative;
+    min-height:100vh;
+    display:flex; align-items:center;
+    overflow:hidden;
+    background:
+      radial-gradient(ellipse 900px 600px at 82% 12%, rgba(201,154,75,0.16), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 8% 90%, rgba(189,91,49,0.16), transparent 60%),
+      var(--espresso);
+    border-bottom:1px solid var(--line);
+  }
+  .hero-inner{
+    width:100%;
+    display:grid;
+    grid-template-columns:1.15fr 0.85fr;
+    align-items:center;
+    gap:20px;
+    padding-top:60px;
+  }
+  .eyebrow{
+    font-size:0.78rem; letter-spacing:3px; text-transform:uppercase;
+    color:var(--gold); font-weight:700; margin-bottom:22px;
+    display:flex; align-items:center; gap:12px;
+    animation:riseIn .9s ease both;
+  }
+  .eyebrow::before{content:"";width:34px;height:1px;background:var(--gold);}
+  .hero h1{
+    font-size:clamp(3.4rem, 8vw, 6.6rem);
+    letter-spacing:-2px;
+    animation:riseIn 1s .1s ease both;
+  }
+  .hero h1 em{
+    font-style:italic; font-weight:400; color:var(--rust);
+    display:block;
+  }
+  .hero p.lede{
+    max-width:440px; margin-top:28px;
+    font-size:1.08rem; line-height:1.65; color:var(--cream-2);
+    animation:riseIn 1s .22s ease both;
+  }
+  .hero-ctas{margin-top:40px; display:flex; gap:18px; align-items:center; animation:riseIn 1s .32s ease both;}
+  .btn{
+    display:inline-flex; align-items:center; gap:10px;
+    padding:16px 30px;
+    background:var(--rust); color:var(--cream);
+    border-radius:100px;
+    font-weight:700; font-size:0.85rem; letter-spacing:0.5px; text-transform:uppercase;
+    border:1px solid var(--rust);
+    transition:transform .3s ease, background .3s ease, color .3s ease;
+    cursor:pointer;
+  }
+  .btn:hover{transform:translateY(-3px); background:var(--rust-dark);}
+  .btn.ghost{background:transparent; border:1px solid var(--line); color:var(--cream);}
+  .btn.ghost:hover{border-color:var(--cream); background:rgba(243,234,217,0.06);}
+
+  .hero-art{
+    position:relative;
+    height:560px;
+    display:flex; align-items:center; justify-content:center;
+    animation:riseIn 1.2s .2s ease both;
+  }
+  .cup-ring{
+    position:absolute; width:420px; height:420px; border-radius:50%;
+    border:1px dashed rgba(201,154,75,0.35);
+    animation:spin 60s linear infinite;
+  }
+  .cup-ring.small{width:330px;height:330px; border-color:rgba(189,91,49,0.3); animation-duration:44s; animation-direction:reverse;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .steam{
+    position:absolute; bottom:64%; left:50%; transform:translateX(-50%);
+    width:120px; height:160px; opacity:0.55;
+  }
+  .steam path{stroke:var(--cream); stroke-width:2; fill:none; stroke-linecap:round;}
+  .steam .s1{animation:steamRise 4s ease-in-out infinite;}
+  .steam .s2{animation:steamRise 4s ease-in-out infinite 1s;}
+  .steam .s3{animation:steamRise 4s ease-in-out infinite 2s;}
+  @keyframes steamRise{
+    0%{opacity:0; transform:translateY(10px) scaleY(0.9);}
+    30%{opacity:0.7;}
+    100%{opacity:0; transform:translateY(-30px) scaleY(1.1);}
+  }
+  @keyframes riseIn{from{opacity:0; transform:translateY(26px);} to{opacity:1; transform:translateY(0);}}
+
+  .scroll-cue{
+    position:absolute; bottom:36px; left:50%; transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+    font-size:0.7rem; letter-spacing:2px; text-transform:uppercase; color:var(--cream-2); opacity:0.6;
+  }
+  .scroll-cue .line{width:1px; height:36px; background:linear-gradient(var(--gold), transparent); animation:pulse 2s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:0.3;} 50%{opacity:1;}}
+
+  /* ---------- MARQUEE ---------- */
+  .marquee{
+    border-bottom:1px solid var(--line);
+    overflow:hidden; white-space:nowrap;
+    padding:18px 0;
+    background:var(--espresso-2);
+  }
+  .marquee-track{display:inline-flex; animation:scroll 28s linear infinite;}
+  .marquee span{
+    font-family:'Fraunces',serif; font-style:italic; font-size:1.4rem;
+    padding:0 40px; color:var(--cream-2); opacity:0.7;
+    display:inline-flex; align-items:center; gap:40px;
+  }
+  .marquee span::after{content:"—"; color:var(--rust); opacity:1; font-style:normal;}
+  @keyframes scroll{from{transform:translateX(0);} to{transform:translateX(-50%);}}
+
+  /* ---------- SECTION shared ---------- */
+  section{position:relative; padding:140px 0;}
+  .kicker{
+    font-size:0.78rem; letter-spacing:3px; text-transform:uppercase; color:var(--gold); font-weight:700;
+    display:flex; align-items:center; gap:12px; margin-bottom:20px;
+  }
+  .kicker::before{content:"";width:34px;height:1px;background:var(--gold);}
+  .sec-title{font-size:clamp(2.2rem, 4.4vw, 3.6rem); max-width:720px;}
+
+  /* ---------- STORY ---------- */
+  .story{border-bottom:1px solid var(--line);}
+  .story-grid{
+    display:grid; grid-template-columns:0.9fr 1.1fr; gap:80px; align-items:start; margin-top:70px;
+  }
+  .story-visual{
+    position:relative; height:520px; border-radius:6px;
+    background:
+      linear-gradient(160deg, var(--rust-dark) 0%, var(--espresso-2) 55%),
+      repeating-linear-gradient(45deg, rgba(0,0,0,0.06) 0 2px, transparent 2px 14px);
+    overflow:hidden;
+    display:flex; align-items:flex-end;
+  }
+  .story-visual .num{
+    font-family:'Fraunces',serif; font-size:9rem; font-weight:300; color:rgba(243,234,217,0.08);
+    position:absolute; top:20px; left:24px; font-style:italic;
+  }
+  .bean-scatter{position:absolute; inset:0;}
+  .bean{position:absolute; width:26px; height:16px; background:var(--espresso); border-radius:50%; opacity:0.55;}
+  .bean::after{content:"";position:absolute; top:2px; left:12px; bottom:2px; width:2px; background:var(--espresso-2); border-radius:2px; transform:rotate(8deg);}
+  .story p{font-size:1.06rem; line-height:1.85; color:var(--cream-2); max-width:560px;}
+  .story p + p{margin-top:22px;}
+  .story .pull{
+    font-family:'Fraunces',serif; font-style:italic; font-size:1.7rem; line-height:1.4;
+    color:var(--cream); border-left:2px solid var(--rust); padding-left:26px; margin:34px 0;
+  }
+  .signature{margin-top:36px; display:flex; align-items:center; gap:16px;}
+  .signature .line{width:60px; height:1px; background:var(--line);}
+  .signature span{font-size:0.85rem; color:var(--cream-2); letter-spacing:1px;}
+
+  /* ---------- ORIGINS ---------- */
+  .origins{background:var(--espresso-2); border-bottom:1px solid var(--line);}
+  .origin-cards{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:2px;
+    margin-top:70px; background:var(--line); border:1px solid var(--line);
+  }
+  .origin-card{
+    background:var(--espresso-2);
+    padding:44px 36px;
+    transition:background .4s ease;
+    position:relative;
+    min-height:340px;
+    display:flex; flex-direction:column; justify-content:space-between;
+  }
+  .origin-card:hover{background:#3a241a;}
+  .origin-tag{font-size:0.72rem; letter-spacing:2px; text-transform:uppercase; color:var(--rust); font-weight:700;}
+  .origin-card h3{font-size:1.9rem; margin-top:14px;}
+  .origin-card p{color:var(--cream-2); font-size:0.92rem; line-height:1.6; margin-top:14px;}
+  .origin-meta{display:flex; justify-content:space-between; margin-top:30px; padding-top:20px; border-top:1px solid var(--line); font-size:0.78rem; color:var(--cream-2); letter-spacing:0.5px;}
+  .origin-meta b{color:var(--gold); display:block; font-family:'Fraunces',serif; font-size:1.3rem; font-weight:500;}
+
+  /* ---------- BREW GUIDE ---------- */
+  .brew{border-bottom:1px solid var(--line);}
+  .brew-steps{
+    margin-top:70px; display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+    background:var(--line); border:1px solid var(--line);
+  }
+  .brew-step{background:var(--espresso); padding:38px 30px 30px; position:relative;}
+  .brew-step .step-num{
+    font-family:'Fraunces',serif; font-style:italic; font-size:2.6rem; color:var(--rust); opacity:0.85; display:block; margin-bottom:18px;
+  }
+  .brew-step h4{font-size:1.15rem; margin-bottom:10px;}
+  .brew-step p{font-size:0.88rem; color:var(--cream-2); line-height:1.6;}
+  @media(max-width:900px){ .brew-steps{grid-template-columns:1fr 1fr;} }
+
+  /* ---------- MENU ---------- */
+  .menu{background:var(--espresso-2); border-bottom:1px solid var(--line);}
+  .menu-top{display:flex; justify-content:space-between; align-items:flex-end; gap:30px; flex-wrap:wrap;}
+  .menu-list{margin-top:60px; display:grid; grid-template-columns:1fr 1fr; gap:0 70px;}
+  .menu-item{
+    display:flex; justify-content:space-between; align-items:baseline; gap:16px;
+    padding:22px 0; border-bottom:1px dotted var(--line);
+  }
+  .menu-item .mi-left h4{font-size:1.15rem; font-weight:500;}
+  .menu-item .mi-left span{font-size:0.85rem; color:var(--cream-2); display:block; margin-top:4px;}
+  .menu-item .price{font-family:'Fraunces',serif; font-style:italic; color:var(--gold); font-size:1.15rem; white-space:nowrap;}
+  @media(max-width:800px){ .menu-list{grid-template-columns:1fr;} }
+
+  /* ---------- CTA BAND ---------- */
+  .band{
+    padding:110px 0;
+    text-align:center;
+    position:relative;
+    background:
+      radial-gradient(ellipse 700px 400px at 50% 0%, rgba(189,91,49,0.22), transparent 65%),
+      var(--espresso);
+    border-bottom:1px solid var(--line);
+  }
+  .band h2{font-size:clamp(2.4rem,5.5vw,4.4rem); max-width:820px; margin:0 auto;}
+  .band h2 em{color:var(--rust); font-style:italic;}
+  .band .btn{margin-top:40px;}
+
+  /* ---------- FOOTER ---------- */
+  footer{padding:90px 0 40px;}
+  .foot-grid{display:grid; grid-template-columns:1.3fr 1fr 1fr 1fr; gap:50px;}
+  .foot-brand .logo{margin-bottom:18px;}
+  .foot-brand p{color:var(--cream-2); font-size:0.92rem; line-height:1.6; max-width:280px;}
+  .foot-col h5{font-size:0.75rem; letter-spacing:2px; text-transform:uppercase; color:var(--gold); margin-bottom:20px;}
+  .foot-col a, .foot-col p{display:block; font-size:0.92rem; color:var(--cream-2); margin-bottom:12px;}
+  .foot-col a:hover{color:var(--cream);}
+  .foot-bottom{
+    margin-top:80px; padding-top:26px; border-top:1px solid var(--line);
+    display:flex; justify-content:space-between; font-size:0.8rem; color:var(--cream-2); opacity:0.7; flex-wrap:wrap; gap:10px;
+  }
+
+  @media(max-width:900px){
+    .hero-inner{grid-template-columns:1fr;}
+    .hero-art{height:340px; margin-top:20px;}
+    .story-grid{grid-template-columns:1fr;}
+    .story-visual{height:300px;}
+    .origin-cards{grid-template-columns:1fr;}
+    .brew-steps{grid-template-columns:1fr;}
+    .foot-grid{grid-template-columns:1fr 1fr; row-gap:40px;}
+    .wrap{padding:0 24px;}
+  }
+
+  [data-reveal]{opacity:0; transform:translateY(34px); transition:opacity .8s ease, transform .8s ease;}
+  [data-reveal].in{opacity:1; transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<!-- AZURE WEB APP ASSIGNMENT VERIFICATION BADGE -->
+<div style="position: fixed; bottom: 20px; right: 20px; background: rgba(255,255,255,0.95); color: #0078d4; padding: 18px 24px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); z-index: 9999; font-family: Arial, sans-serif; text-align: left; border-left: 5px solid #0078d4;">
+    <h4 style="margin: 0 0 10px 0; font-size: 16px;">Azure Web App Deployment</h4>
+    <p style="margin: 0 0 8px 0; font-size: 14px; color: #333;">This web application is running successfully.</p>
+    <p style="margin: 0; font-size: 14px; color: #107c10; font-weight: bold;">✓ Application deployed on Azure App Service<br><span style="color: #666; font-weight: normal; font-size: 13px; display: block; margin-top: 5px;">Node.js + Express</span></p>
+</div>
+
+<nav>
+  <div class="logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 9h13a3 3 0 0 1 0 6h-1"/><path d="M4 9v7a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V9"/><path d="M7 5c0 1-1 1-1 2M11 5c0 1-1 1-1 2M15 5c0 1-1 1-1 2"/></svg>
+    Ember&nbsp;&amp;&nbsp;Rind
+  </div>
+  <div class="nav-links">
+    <a href="#story">Story</a>
+    <a href="#origins">Origins</a>
+    <a href="#brew">Brew Guide</a>
+    <a href="#menu">Menu</a>
+    <a href="#visit">Visit</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-inner">
+    <div>
+      <div class="eyebrow">Small-Batch Roastery · Est. 2016</div>
+      <h1>Coffee, taken<em>seriously slow.</em></h1>
+      <p class="lede">We roast in three-kilo batches, cup every lot before it's sold, and pay our farmers well above commodity price. This is coffee the long way — because the long way tastes better.</p>
+      <div class="hero-ctas">
+        <a class="btn" href="#menu">Shop the roast <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a class="btn ghost" href="#story">Our story</a>
+      </div>
+    </div>
+    <div class="hero-art">
+      <div class="cup-ring"></div>
+      <div class="cup-ring small"></div>
+      <svg width="120" height="180" class="steam" viewBox="0 0 120 180">
+        <path class="s1" d="M35 160 C 20 130, 55 120, 40 90 C 28 65, 55 55, 45 30"/>
+        <path class="s2" d="M60 160 C 45 130, 80 120, 65 90 C 53 65, 80 55, 70 30"/>
+        <path class="s3" d="M85 160 C 70 130, 105 120, 90 90 C 78 65, 105 55, 95 30"/>
+      </svg>
+      <svg width="230" height="230" viewBox="0 0 230 230">
+        <ellipse cx="115" cy="205" rx="88" ry="14" fill="rgba(0,0,0,0.35)"/>
+        <path d="M45 70 h120 l-10 90 a30 30 0 0 1 -30 27 h-40 a30 30 0 0 1 -30 -27 z" fill="#3a241a" stroke="#c99a4b" stroke-width="2"/>
+        <path d="M165 85 h20 a22 22 0 0 1 0 44 h-14" fill="none" stroke="#c99a4b" stroke-width="6" stroke-linecap="round"/>
+        <ellipse cx="105" cy="72" rx="62" ry="10" fill="#bd5b31"/>
+      </svg>
+    </div>
+  </div>
+  <div class="scroll-cue"><span>Scroll</span><div class="line"></div></div>
+</header>
+
+<div class="marquee">
+  <div class="marquee-track">
+    <span>Direct Trade</span><span>Cupped Daily</span><span>Roasted to Order</span><span>Zero Fillers</span><span>Farmer First</span>
+    <span>Direct Trade</span><span>Cupped Daily</span><span>Roasted to Order</span><span>Zero Fillers</span><span>Farmer First</span>
+  </div>
+</div>
+
+<section class="story" id="story">
+  <div class="wrap">
+    <div class="kicker">Our Philosophy</div>
+    <h2 class="sec-title">Every bag begins on a mountainside we've actually visited.</h2>
+
+    <div class="story-grid">
+      <div class="story-visual" data-reveal>
+        <span class="num">01</span>
+        <div class="bean-scatter">
+          <div class="bean" style="top:20%; left:15%; transform:rotate(20deg);"></div>
+          <div class="bean" style="top:55%; left:60%; transform:rotate(-35deg);"></div>
+          <div class="bean" style="top:70%; left:20%; transform:rotate(60deg);"></div>
+          <div class="bean" style="top:35%; left:75%; transform:rotate(-10deg);"></div>
+          <div class="bean" style="top:15%; left:55%; transform:rotate(80deg);"></div>
+        </div>
+      </div>
+      <div data-reveal>
+        <p>Ember &amp; Rind started in a converted garage with a two-kilo drum roaster and a stubborn belief: that coffee this good shouldn't require a chemistry degree to understand. Just heat, time, and attention.</p>
+        <div class="pull">"We don't chase trends. We chase the moment a lot tastes exactly like the hillside it grew on."</div>
+        <p>Today we still roast in small batches, still cup every single lot blind before it earns a place on the shelf, and still drive out to the farms ourselves — because a relationship you can't see doesn't belong in your cup.</p>
+        <div class="signature">
+          <div class="line"></div>
+          <span>Mara Okonkwo, Head Roaster</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="origins" id="origins">
+  <div class="wrap">
+    <div class="kicker">Where It Grows</div>
+    <h2 class="sec-title">Three farms, three altitudes, one obsession with flavor.</h2>
+
+    <div class="origin-cards">
+      <div class="origin-card" data-reveal>
+        <div>
+          <div class="origin-tag">Ethiopia · Yirgacheffe</div>
+          <h3>Konga Washing Station</h3>
+          <p>Jasmine and stone fruit up front, a black tea finish. Washed and dried slow on raised beds at 1,950m.</p>
+        </div>
+        <div class="origin-meta"><span>Altitude<b>1,950m</b></span><span>Process<b>Washed</b></span><span>Roast<b>Light</b></span></div>
+      </div>
+      <div class="origin-card" data-reveal>
+        <div>
+          <div class="origin-tag">Colombia · Huila</div>
+          <h3>Finca El Mirador</h3>
+          <p>Caramel, red apple, a syrupy body. Grown under shade trees on volcanic soil by the Ramírez family.</p>
+        </div>
+        <div class="origin-meta"><span>Altitude<b>1,700m</b></span><span>Process<b>Honey</b></span><span>Roast<b>Medium</b></span></div>
+      </div>
+      <div class="origin-card" data-reveal>
+        <div>
+          <div class="origin-tag">Sumatra · Aceh</div>
+          <h3>Gayo Highlands Co-op</h3>
+          <p>Cedar, dark chocolate, low acidity, heavy body. Wet-hulled the traditional way, right on the farm floor.</p>
+        </div>
+        <div class="origin-meta"><span>Altitude<b>1,400m</b></span><span>Process<b>Wet-Hull</b></span><span>Roast<b>Dark</b></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="brew" id="brew">
+  <div class="wrap">
+    <div class="kicker">Brew Guide</div>
+    <h2 class="sec-title">Four steps between a good bag and a great cup.</h2>
+
+    <div class="brew-steps">
+      <div class="brew-step" data-reveal>
+        <span class="step-num">01</span>
+        <h4>Grind Fresh</h4>
+        <p>Grind just before brewing — medium-coarse for pour-over, like raw sugar. Pre-ground coffee loses aroma within minutes.</p>
+      </div>
+      <div class="brew-step" data-reveal>
+        <span class="step-num">02</span>
+        <h4>Weigh It Out</h4>
+        <p>16:1 water-to-coffee ratio is our house standard. A kitchen scale matters more than any gadget you'll buy.</p>
+      </div>
+      <div class="brew-step" data-reveal>
+        <span class="step-num">03</span>
+        <h4>Bloom First</h4>
+        <p>Pour double the coffee's weight in water at 94°C, wait 30 seconds. Let the grounds off-gas before the real pour.</p>
+      </div>
+      <div class="brew-step" data-reveal>
+        <span class="step-num">04</span>
+        <h4>Pour Slow</h4>
+        <p>Circular pours, center to edge, over three minutes total. Rushing the pour is the single most common mistake.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="menu" id="menu">
+  <div class="wrap">
+    <div class="menu-top">
+      <div>
+        <div class="kicker">This Week's Roast</div>
+        <h2 class="sec-title">Fresh off the drum, shipped within 48 hours.</h2>
+      </div>
+      <a class="btn" href="#visit">See all beans</a>
+    </div>
+
+    <div class="menu-list">
+      <div class="menu-item"><div class="mi-left"><h4>Konga Yirgacheffe</h4><span>Jasmine · Peach · Black Tea</span></div><div class="price">$21</div></div>
+      <div class="menu-item"><div class="mi-left"><h4>El Mirador Huila</h4><span>Caramel · Red Apple · Syrupy</span></div><div class="price">$19</div></div>
+      <div class="menu-item"><div class="mi-left"><h4>Gayo Highlands</h4><span>Cedar · Dark Cocoa · Low Acid</span></div><div class="price">$18</div></div>
+      <div class="menu-item"><div class="mi-left"><h4>House Blend, No. 3</h4><span>Brown Sugar · Toasted Nut</span></div><div class="price">$16</div></div>
+      <div class="menu-item"><div class="mi-left"><h4>Decaf Huila, Swiss Water</h4><span>Cocoa · Molasses · Full Body</span></div><div class="price">$20</div></div>
+      <div class="menu-item"><div class="mi-left"><h4>Espresso, No. 7 Blend</h4><span>Fig · Dark Chocolate · Long Finish</span></div><div class="price">$19</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <h2>Your next great cup is <em>one roast away.</em></h2>
+    <a class="btn" href="#menu">Order fresh beans</a>
+  </div>
+</section>
+
+<footer id="visit">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <div class="logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 9h13a3 3 0 0 1 0 6h-1"/><path d="M4 9v7a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V9"/><path d="M7 5c0 1-1 1-1 2M11 5c0 1-1 1-1 2M15 5c0 1-1 1-1 2"/></svg>
+          Ember&nbsp;&amp;&nbsp;Rind
+        </div>
+        <p>Small-batch coffee roasted on Rind Street, shipped nationwide, and best enjoyed slowly, on a Sunday, with someone worth talking to.</p>
+      </div>
+      <div class="foot-col">
+        <h5>Visit</h5>
+        <p>1204 Rind Street</p>
+        <p>Portland, OR 97214</p>
+        <p>Mon–Sun, 7am – 5pm</p>
+      </div>
+      <div class="foot-col">
+        <h5>Explore</h5>
+        <a href="#story">Our Story</a>
+        <a href="#origins">Origins</a>
+        <a href="#brew">Brew Guide</a>
+        <a href="#menu">Shop</a>
+      </div>
+      <div class="foot-col">
+        <h5>Connect</h5>
+        <a href="#">Instagram</a>
+        <a href="#">Newsletter</a>
+        <a href="#">Wholesale</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Ember & Rind Coffee Roasters</span>
+      <span>Roasted with intention, always.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); } });
+  }, {threshold:0.15});
+  document.querySelectorAll('[data-reveal]').forEach(el=>io.observe(el));
+</script>
+
+</body>
+</html>
