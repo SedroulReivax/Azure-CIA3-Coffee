@@ -2,11 +2,14 @@
   "name": "coffee-haven",
   "version": "1.0.0",
   "description": "A warm and modern coffee website",
-  "main": "server.js",
+  "main": "app.js",
   "scripts": {
-    "dev": "node server.js",
-    "start": "node server.js"
+    "dev": "node app.js",
+    "start": "node app.js"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
 }
